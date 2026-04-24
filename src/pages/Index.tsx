@@ -675,36 +675,29 @@ function ArenaScreen({
         </div>
       )}
 
-      {gameState === "fighting" && (
-        <div className="flex justify-center gap-2 mb-3 min-h-8">
-          {comboInput.map((k, i) => (
-            <div
-              key={i}
-              className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm text-black"
-              style={{ background: "#FFD700", boxShadow: "0 0 10px rgba(255,215,0,0.6)" }}
-            >
-              {k}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Combo trail */}
+      <div className="flex justify-center gap-2 mb-2 min-h-8">
+        {gameState === "fighting" && comboInput.map((k, i) => (
+          <div
+            key={i}
+            className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm text-black animate-bounce-in"
+            style={{ background: "#FFD700", boxShadow: "0 0 12px rgba(255,215,0,0.7)" }}
+          >
+            {k}
+          </div>
+        ))}
+      </div>
 
       {gameState !== "fighting" && (
         <div
           className="text-center py-6 rounded-2xl mb-4 animate-bounce-in"
           style={{
-            background:
-              gameState === "win"
-                ? "linear-gradient(135deg, #1a3a1a, #0a2a0a)"
-                : "linear-gradient(135deg, #3a1a1a, #2a0a0a)",
+            background: gameState === "win" ? "linear-gradient(135deg, #1a3a1a, #0a2a0a)" : "linear-gradient(135deg, #3a1a1a, #2a0a0a)",
             border: `2px solid ${gameState === "win" ? "#39FF14" : "#FF4444"}`,
           }}
         >
           <div className="text-5xl mb-2">{gameState === "win" ? "🏆" : "💀"}</div>
-          <div
-            className="font-fredoka text-3xl"
-            style={{ color: gameState === "win" ? "#39FF14" : "#FF4444" }}
-          >
+          <div className="font-fredoka text-3xl" style={{ color: gameState === "win" ? "#39FF14" : "#FF4444" }}>
             {gameState === "win" ? "Победа!" : "Поражение!"}
           </div>
           <button
@@ -719,63 +712,67 @@ function ArenaScreen({
 
       {gameState === "fighting" && (
         <>
+          {/* ОСНОВНАЯ КНОПКА АТАКИ */}
           <div className="mb-3">
-            <p className="text-xs text-white/40 text-center mb-2 uppercase tracking-wider">
-              Твои комбо-атаки
+            <button
+              onPointerDown={() => handleKeyPress("A")}
+              className="w-full py-5 rounded-2xl font-fredoka text-2xl text-white select-none transition-all duration-100 active:scale-95 active:brightness-125"
+              style={{
+                background: `linear-gradient(135deg, ${selectedChar.color}, ${selectedChar.color}99)`,
+                boxShadow: `0 6px 0 rgba(0,0,0,0.4), 0 8px 25px ${selectedChar.glow}`,
+                border: `2px solid ${selectedChar.color}80`,
+                touchAction: "manipulation",
+              }}
+            >
+              {selectedChar.emoji} УДАР!
+            </button>
+          </div>
+
+          {/* КОМБО-КНОПКИ */}
+          <div className="mb-3">
+            <p className="text-xs text-white/40 text-center mb-2 uppercase tracking-widest font-bold">
+              ⚡ Комбо-атаки — нажимай кнопки по порядку
             </p>
             <div className="flex flex-col gap-2">
-              {selectedChar.combos.map((c, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-xl px-3 py-2 border"
-                  style={{ background: c.color + "15", borderColor: c.color + "40" }}
-                >
-                  <span className="text-sm font-bold" style={{ color: c.color }}>
-                    {c.emoji} {c.name}
-                  </span>
-                  <div className="flex gap-1 items-center">
+              {selectedChar.combos.map((c, ci) => (
+                <div key={ci} className="rounded-2xl border overflow-hidden" style={{ borderColor: c.color + "50" }}>
+                  <div
+                    className="flex items-center justify-between px-3 py-1.5"
+                    style={{ background: c.color + "20" }}
+                  >
+                    <span className="text-sm font-black" style={{ color: c.color }}>
+                      {c.emoji} {c.name}
+                    </span>
+                    <span className="text-xs font-bold text-white/50">💥 -{c.damage} урона</span>
+                  </div>
+                  <div className="flex gap-2 p-2" style={{ background: "rgba(0,0,0,0.3)" }}>
                     {c.keys.map((k, ki) => (
-                      <span
+                      <button
                         key={ki}
-                        className="w-6 h-6 rounded flex items-center justify-center text-xs font-black text-black"
-                        style={{ background: c.color }}
+                        onPointerDown={() => handleKeyPress(k)}
+                        className="flex-1 py-3 rounded-xl font-fredoka text-lg font-black text-black select-none transition-all duration-100 active:scale-90 active:brightness-125"
+                        style={{
+                          background: `linear-gradient(135deg, ${c.color}, ${c.color}bb)`,
+                          boxShadow: `0 4px 0 rgba(0,0,0,0.5), 0 4px 12px ${c.color}60`,
+                          touchAction: "manipulation",
+                        }}
                       >
                         {k}
-                      </span>
+                      </button>
                     ))}
-                    <span className="text-xs ml-1 font-bold text-white/60">-{c.damage}💥</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-2 mb-3">
-            {COMBO_KEYS.map((k) => (
-              <button
-                key={k}
-                onPointerDown={() => handleKeyPress(k)}
-                className="py-4 rounded-2xl font-fredoka text-xl text-black font-black active:scale-90 transition-transform select-none"
-                style={{
-                  background: "linear-gradient(135deg, #FFD700, #FF8C00)",
-                  boxShadow: "0 4px 0 #CC6600",
-                  touchAction: "manipulation",
-                }}
-              >
-                {k}
-              </button>
-            ))}
-          </div>
-
-          <div className="rounded-2xl p-3 bg-black/30 border border-white/10 max-h-28 overflow-hidden">
+          {/* Лог боя */}
+          <div className="rounded-2xl p-3 bg-black/30 border border-white/10 max-h-24 overflow-hidden">
             {log.map((l, i) => (
               <div
                 key={i}
                 className="text-xs py-0.5"
-                style={{
-                  opacity: 1 - i * 0.2,
-                  color: i === 0 ? "#FFD700" : "rgba(255,255,255,0.5)",
-                }}
+                style={{ opacity: 1 - i * 0.22, color: i === 0 ? "#FFD700" : "rgba(255,255,255,0.5)" }}
               >
                 {l}
               </div>
